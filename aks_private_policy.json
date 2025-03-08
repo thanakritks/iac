@@ -1,0 +1,20 @@
+{
+  "properties": {
+    "displayName": "Require Private AKS Cluster",
+    "description": "Ensure AKS clusters use private networking to prevent public exposure.",
+    "mode": "All",
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "Microsoft.ContainerService/managedClusters/apiServerAccessProfile.enablePrivateCluster",
+            "equals": "false"
+          }
+        ]
+      },
+      "then": {
+        "effect": "Deny"
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "properties": {
+    "displayName": "Enforce RBAC in AKS",
+    "description": "Ensure that RBAC is enabled on AKS clusters",
+    "mode": "All",
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "Microsoft.ContainerService/managedClusters/enableRBAC",
+            "equals": "false"
+          }
+        ]
+      },
+      "then": {
+        "effect": "Deny"
+      }
+    }
+  }
+}

@@ -1,0 +1,32 @@
+name: Kubernetes Security Scan
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+
+jobs:
+  k8s-security-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Install kube-bench
+      run: |
+        curl -L https://raw.githubusercontent.com/aquasecurity/kube-bench/main/install.sh | sh
+        kube-bench run --benchmark cis-1.6
+
+    - name: Install kubesec
+      run: |
+        curl -LO https://github.com/controlplaneio/kubesec/releases/latest/download/kubesec_linux_amd64
+        chmod +x kubesec_linux_amd64
+        mv kubesec_linux_amd64 /usr/local/bin/kubesec
+
+    - name: Run kubesec Security Scan
+      run: kubesec scan deployment.yaml

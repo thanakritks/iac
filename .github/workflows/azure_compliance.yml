@@ -1,0 +1,20 @@
+name: Azure Policy Compliance Check
+
+on:
+  schedule:
+    - cron: '0 12 * * 1' # Runs every Monday
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  compliance-check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Login to Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Check Azure Policy Compliance
+      run: |
+        az policy state list --query "[?policyDefinitionId=='/subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/providers/Microsoft.Authorization/policyDefinitions/deny-public-ip-vm']"

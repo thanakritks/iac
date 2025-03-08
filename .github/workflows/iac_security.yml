@@ -1,0 +1,42 @@
+name: IaC Security Scan (Terraform + Golang)
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+
+jobs:
+  iac-security-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Install tfsec
+      run: |
+        curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
+
+    - name: Run tfsec Security Scan
+      run: tfsec .
+
+    - name: Install Terrascan
+      run: curl -L https://github.com/tenable/terrascan/releases/latest/download/terrascan-linux-amd64 -o terrascan && chmod +x terrascan && mv terrascan /usr/local/bin/
+
+    - name: Run Terrascan Security Scan
+      run: terrascan scan
+
+    - name: Install Trivy
+      run: curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
+
+    - name: Run Trivy IaC Scan
+      run: trivy config .
+
+    - name: Run Gosec Security Scan (Golang)
+      run: |
+        go install github.com/securego/gosec/v2/cmd/gosec@latest
+        gosec ./...

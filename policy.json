@@ -1,0 +1,20 @@
+{
+  "properties": {
+    "displayName": "Deny Public IP on Virtual Machines",
+    "description": "Ensure no VMs have a public IP address.",
+    "mode": "All",
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "Microsoft.Network/publicIPAddresses/ipAddress",
+            "exists": "true"
+          }
+        ]
+      },
+      "then": {
+        "effect": "Deny"
+      }
+    }
+  }
+}

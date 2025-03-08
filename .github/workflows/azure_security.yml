@@ -1,0 +1,42 @@
+name: Azure Kubernetes Security & Auto-Remediation
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+
+jobs:
+  k8s-security:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Login to Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Run kube-bench for CIS Compliance
+      run: |
+        curl -L https://raw.githubusercontent.com/aquasecurity/kube-bench/main/install.sh | sh
+        kube-bench run --benchmark cis-1.6
+
+    - name: Run kubesec for YAML Security
+      run: |
+        curl -LO https://github.com/controlplaneio/kubesec/releases/latest/download/kubesec_linux_amd64
+        chmod +x kubesec_linux_amd64
+        mv kubesec_linux_amd64 /usr/local/bin/kubesec
+        kubesec scan deployment.yaml
+
+    - name: Check Azure Security Center Alerts
+      run: az security alert list --query "[].{Name:name, Status:status}"
+
+    - name: Trigger Auto-Remediation
+      run: |
+        az policy remediation create --name "aks-private-remediation" --policy-assignment "/subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/providers/Microsoft.Authorization/policyAssignments/require-private-aks"

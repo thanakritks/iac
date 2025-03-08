@@ -1,0 +1,20 @@
+{
+  "properties": {
+    "displayName": "Enforce Azure AD Authentication for AKS",
+    "description": "Ensure all AKS clusters integrate with Azure AD for authentication.",
+    "mode": "All",
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "Microsoft.ContainerService/managedClusters/aadProfile.managed",
+            "equals": "false"
+          }
+        ]
+      },
+      "then": {
+        "effect": "Deny"
+      }
+    }
+  }
+}

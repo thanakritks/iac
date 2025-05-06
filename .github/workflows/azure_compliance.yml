@@ -1,9 +1,7 @@
 name: Azure Policy Compliance Check
 
 on:
-  schedule:
-    - cron: '0 12 * * 1' # Runs every Monday
-  workflow_dispatch: # Allow manual trigger
+push [dev]
 
 jobs:
   compliance-check:
